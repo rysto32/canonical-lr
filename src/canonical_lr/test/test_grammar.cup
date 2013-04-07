@@ -1,0 +1,33 @@
+
+non terminal S, C;
+terminal c, d;
+
+start  S;
+
+S ::= C C;
+C ::= c C | d;
+
+
+
+/*
+non terminal E, T, F;
+terminal OPEN, CLOSE, PLUS, TIMES, ID;
+
+start with E;
+
+E ::= E PLUS T | T;
+T ::= T TIMES F | F;
+F ::= OPEN E CLOSE | ID;
+
+*/
+
+/*
+terminal ASSIGN, DEREFERENCE, ID;
+non terminal S, L, R;
+
+start with S;
+
+S ::= L ASSIGN R | R;
+L ::= DEREFERENCE R | ID;
+R ::= L;
+/**/

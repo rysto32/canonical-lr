@@ -1,0 +1,246 @@
+
+language java {
+
+    package canonical_lr;
+
+    import java.util.*;
+    import canonical_lr.tree.*;
+
+    type String String;
+    type StringList List<String>;
+    type GrammarSpecification GrammarSpecification;
+    type SymbolDeclList List<SymbolDeclarationNode>;
+    type ProdNodeList List<ProductionNode>;
+    type RHSList List<RightHandSide>;
+    type RightHandSide RightHandSide;
+    type SymbolDeclarationNode SymbolDeclarationNode;
+    type ProductionNode ProductionNode;
+    type LanguageList Map<TargetLanguage, LanguageSpec>;
+    type TypeSpec Map<String, String>;
+    type LanguageSpec LanguageSpec;
+    type TypeDefinition TypeDefinition;
+}
+
+language cxx {
+
+    #include <map>
+    #include <vector>
+    #include <string>
+    #include "Types.h"
+
+
+    type String std::string *;
+    type StringList std::vector<std::string> *;
+    type GrammarSpecification GrammarSpecification*;
+    type SymbolDeclList std::vector<SymbolDeclarationNode> *;
+    type ProdNodeList std::vector<ProductionNode> *;
+    type RHSList std::vector<RightHandSide> *;
+    type RightHandSide RightHandSide*;
+    type SymbolDeclarationNode SymbolDeclarationNode*;
+    type ProductionNode ProductionNode*;
+    type LanguageList std::map<TargetLanguage, LanguageSpec> *;
+    type TypeSpec std::map<std::string, std::string> *;
+    type LanguageSpec LanguageSpec*;
+    type TypeDefinition TypeDefinition*;
+}
+
+terminal PACKAGE, SEMI, WITH, TERMINAL, NON, COMMA, IMPORT, STATIC;
+terminal START, PRODUCES, BAR, DOT, COLON, STAR, END_OF_FILE;
+terminal OPEN_S, CLOSE_S, QUESTION, OPEN_A, CLOSE_A, EXTENDS, SUPER;
+terminal JAVA, LANG, CXX, TYPE, OPEN_BRACE, CLOSE_BRACE, COLON_COLON;
+terminal AMPERSAND;
+terminal String ID;
+terminal String CPP_DIRECTIVE;
+
+non terminal GrammarSpecification grammar_spec;
+non terminal String package_spec;
+non terminal StringList import_spec;
+non terminal String import_statement;
+non terminal SymbolDeclList symbol_list;
+non terminal SymbolDeclarationNode symbol;
+non terminal StringList declares_symbol;
+non terminal String start_spec;
+non terminal ProdNodeList production_list;
+non terminal ProductionNode production;
+non terminal RHSList rhs_list;
+non terminal String multipart_id;
+non terminal String java_type_id;
+non terminal StringList symbol_dec_list;
+non terminal String parameterized_type;
+non terminal String identifier;
+non terminal String production_name_opt;
+non terminal RightHandSide rhs;
+non terminal StringList identifier_list;
+non terminal String import_id;
+non terminal LanguageList language_list;
+non terminal LanguageSpec language;
+non terminal TypeSpec java_type_spec;
+non terminal TypeDefinition java_type_def;
+non terminal String parameterized_type_list;
+non terminal StringList cpp_spec;
+non terminal TypeSpec cxx_type_spec;
+non terminal TypeDefinition cxx_type_def;
+non terminal String cxx_type_id, cxx_unscoped_type_id, cxx_param_type_list;
+
+start with grammar_spec;
+
+grammar_spec ::=
+      language_list symbol_list start_spec production_list : GrammarSpec;
+
+language_list ::=
+      language_list language                : LanguageList
+    | language                              : LanguageList
+    ;
+
+language ::=
+      LANG JAVA OPEN_BRACE package_spec import_spec java_type_spec CLOSE_BRACE  : JavaSpec
+    | LANG CXX OPEN_BRACE cpp_spec cxx_type_spec CLOSE_BRACE                : CxxSpec
+    ;
+
+cpp_spec ::=
+      cpp_spec CPP_DIRECTIVE                : CppSpec
+    |                                       : CppSpec
+    ;
+
+cxx_type_spec ::=
+      cxx_type_spec cxx_type_def            : TypeSpec
+    |                                       : TypeSpec
+    ;
+
+cxx_type_def ::=
+      TYPE ID cxx_type_id SEMI              : TypeDef
+    ;
+
+java_type_spec ::=
+      java_type_spec java_type_def          : TypeSpec
+    |                                       : TypeSpec
+    ;
+
+java_type_def ::=
+      TYPE ID java_type_id SEMI             : TypeDef
+    ;
+
+package_spec ::=
+      PACKAGE multipart_id SEMI             : PackagePresent
+    |                                       : NoPackage
+    ;
+
+import_spec ::=
+      import_spec import_statement          : ImportList
+    |                                       : ImportListTerminator
+    ;
+
+import_statement ::=
+      IMPORT import_id SEMI                 : Import
+    | IMPORT STATIC import_id SEMI          : StaticImport
+    ;
+
+import_id ::=
+      multipart_id                          : MultipartImportId
+    | multipart_id DOT STAR                 : WildcardImportId
+    ;
+
+symbol_list ::=
+      symbol_list symbol                    : SymbolList
+    | symbol                                : SymbolListTerminator
+    ;
+
+symbol ::=
+      TERMINAL ID declares_symbol           : TerminalDeclaration
+    | NON TERMINAL ID declares_symbol       : NonTerminalDeclaration
+    | TERMINAL declares_symbol              : TerminalDeclaration
+    | NON TERMINAL declares_symbol          : NonTerminalDeclaration
+    ;
+
+declares_symbol ::=
+      symbol_dec_list SEMI                  : SymbolDeclaration
+    ;
+
+symbol_dec_list ::=
+      symbol_dec_list COMMA identifier      : SymbolDeclList
+    | identifier                            : SymbolDeclListTerminator
+    ;
+
+start_spec ::=
+      START WITH identifier SEMI            : StartSpec
+    ;
+
+production_list ::=
+      production_list production            : ProductionList
+    | production                            : ProductionListTerminator
+    ;
+
+
+production ::=
+      identifier PRODUCES rhs_list SEMI     : Production
+    ;
+
+production_name_opt ::=
+      COLON identifier                      : ProductionName
+    |
+    ;
+
+rhs_list ::=
+      rhs_list BAR rhs                      : RhsList
+    | rhs                                   : RhsListTerminator
+    ;
+
+rhs ::=
+      identifier_list production_name_opt   : Rhs
+    ;
+
+identifier_list ::=
+      identifier_list identifier            : IdentifierList
+    |                                       : IdentifierListTerminator
+    ;
+
+identifier ::=
+      ID                                    : IdIdentifier
+    | WITH                                  : WithIdentifier
+    | TERMINAL                              : TerminalIdentifier
+    | NON                                   : NonIdentifier
+    | START                                 : StartIdentifier
+    | LANG                                  : LanguageIdentifier
+    | JAVA                                  : JavaIdentifier
+    | CXX                                   : CxxIdentifier
+    | TYPE                                  : TypeIdentifier
+    ;
+
+multipart_id ::=
+      multipart_id DOT identifier           : MultipartId
+    | identifier                            : MultipartIdTerminator
+    ;
+
+java_type_id ::=
+      multipart_id                                      : MultipartTypeId
+    | java_type_id OPEN_S CLOSE_S                            : ArrayTypeId
+    | multipart_id OPEN_A parameterized_type_list CLOSE_A    : ParameterizedTypeId
+    ;
+
+parameterized_type_list ::=
+      parameterized_type_list COMMA parameterized_type      : ParameterizedTypeList
+    | parameterized_type                                    : ParameterizedTypeList
+    ;
+
+parameterized_type ::=
+      java_type_id                                           : TypeParamater
+    | QUESTION EXTENDS java_type_id                          : ExtendsTypeParameter
+    | QUESTION SUPER java_type_id                            : SuperTypeParameter
+    ;
+
+cxx_type_id ::=
+      cxx_unscoped_type_id                                  : CxxTypeId
+    | cxx_type_id COLON_COLON cxx_unscoped_type_id          : CxxScopedTypeId
+    ;
+
+cxx_unscoped_type_id ::=
+      ID                                                        : CxxTypeId
+    | cxx_unscoped_type_id OPEN_A cxx_param_type_list CLOSE_A   : CxxParameterizedTypeId
+    | cxx_unscoped_type_id STAR                                 : CxxPointerTypeId
+    | cxx_unscoped_type_id AMPERSAND                            : CxxReferenceTypeId
+    ;
+
+cxx_param_type_list ::=
+      cxx_type_id                                           : CxxTypeList
+    | cxx_param_type_list COMMA cxx_type_id                 : CxxTypeList
+    ;

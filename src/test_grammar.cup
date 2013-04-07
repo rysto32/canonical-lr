@@ -1,0 +1,6 @@
+non terminal test;
+terminal A, B;
+
+start with test;
+
+test ::= A : Test | B : Test; 
