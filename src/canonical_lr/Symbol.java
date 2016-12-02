@@ -65,6 +65,10 @@ public class Symbol extends Token<Object> {
             case OPEN_BRACE: return "{";
             case CLOSE_BRACE: return "}";
             case END_OF_FILE: return "EOF";
+            case JAVA: return "java";
+            case LANG: return "lang";
+            case CXX: return "cxx";
+            case TYPE: return "type";
             
             default:
                 return Sym.symToString(sym);
