@@ -40,6 +40,10 @@ public class AntTask extends Task {
         this.inputFile = inputFile;
     }
 
+    public void setLalr(boolean lalr) {
+        options.setLalr(lalr);
+    }
+
     public TargetLanguage getTargetLanguage() {
         return options.getTargetLanguage();
     }
@@ -58,7 +62,11 @@ public class AntTask extends Task {
 
     public String getInputFile() {
         return options.getInputFile();
-    }    
+    }
+
+    public boolean isLalr() {
+        return options.isLalr();
+    }
 
     @Override
     public void execute() throws BuildException {
